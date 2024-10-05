@@ -15,6 +15,13 @@ pipeline {
                 git branch: 'main', credentialsId: 'github', url: 'https://github.com/sibanando/hackathon_repo.git'
             }
         }
+      stage('Trivy File Scan') {
+            steps {
+                
+                    sh 'trivy fs . > trivyfs.txt'
+                
+            }
+        }
     stage('SAST - Sonar') {
            environment {
                scannerHome = tool 'sonar-scanner';
