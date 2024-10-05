@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: pythonapp
-        image: sibhanayak/pythonapp:75
+        image: sibhanayak/pythonapp:replaceImageTag
         ports:
         - containerPort: 3000
