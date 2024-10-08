@@ -1,18 +1,17 @@
----
 name: Python Application CI/CD
 on:
   push:
     branches:
-      - master
+      - main
   workflow_dispatch: null
   pull_request:
     branches:
-      - master
+      - main
 jobs:
   build-and-scan:
     runs-on: ubuntu-latest
     env:
-      DOCKER_IMAGE: karthikamn/python-app
+      DOCKER_IMAGE: sibhanayak/pythonapp
       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
@@ -37,7 +36,7 @@ jobs:
         with:
           projectBaseDir: .
           args: >
-            -Dsonar.projectKey=GithubProject -Dsonar.host.url=${{ env.SONAR_HOST_URL
+            -Dsonar.projectKey=hackathon-proj -Dsonar.host.url=${{ env.SONAR_HOST_URL
             }} -Dsonar.login=${{ env.SONAR_TOKEN }}
             -Dsonar.working.directory=./.scannerwork
       - name: Print SonarQube Logs
