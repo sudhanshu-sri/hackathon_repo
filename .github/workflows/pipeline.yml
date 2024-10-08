@@ -1,64 +1,50 @@
+---
 name: Python Application CI/CD
-
 on:
   push:
     branches:
       - master
-  workflow_dispatch:    
+  workflow_dispatch: null
   pull_request:
     branches:
       - master
-
 jobs:
   build-and-scan:
     runs-on: ubuntu-latest
-
     env:
       DOCKER_IMAGE: karthikamn/python-app
       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
-    
     steps:
-      # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v3
-
-      # Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      
-      # Build the Docker image
       - name: Build Docker image
         run: |
           docker build -t $DOCKER_IMAGE:${{ github.sha }} .
           docker tag $DOCKER_IMAGE:${{ github.sha }} $DOCKER_IMAGE:latest
-      # Push the Docker image to Docker Hub
       - name: Push Docker image
         run: |
           docker push $DOCKER_IMAGE:${{ github.sha }}
           docker push $DOCKER_IMAGE:latest
-      # Run SonarQube scan
       - name: Official SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v3.0.0
         with:
           projectBaseDir: .
           args: >
-           -Dsonar.projectKey=GithubProject
-           -Dsonar.host.url=${{ env.SONAR_HOST_URL }}
-           -Dsonar.login=${{ env.SONAR_TOKEN }}
-           -Dsonar.working.directory=./.scannerwork
-     
-           
+            -Dsonar.projectKey=GithubProject -Dsonar.host.url=${{ env.SONAR_HOST_URL
+            }} -Dsonar.login=${{ env.SONAR_TOKEN }}
+            -Dsonar.working.directory=./.scannerwork
       - name: Print SonarQube Logs
-        run: |
+        run: >
           ls -al .scannerwork
-          cat .scannerwork/report-task.txt || echo "report-task.txt not found"
-		  
+
+          cat .scannerwork/report-task.txt || echo "report-task.txt not found"	  
       - name: Deploy to Kubernetes
-	run: |
-	  echo "{KUBE_CONFIG_DATA}" | base64 --decode > $HOME/.kube/config
-	  kubectl apply -f argocd-test/deployment.yaml
+        run: |
+          kubectl apply -f deployment.yaml
