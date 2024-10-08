@@ -46,4 +46,4 @@ jobs:
           cat .scannerwork/report-task.txt || echo "report-task.txt not found"	  
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f deployment.yaml
+          kubectl apply -f deployment.yaml --validate=false
