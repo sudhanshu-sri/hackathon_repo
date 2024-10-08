@@ -46,4 +46,5 @@ jobs:
           cat .scannerwork/report-task.txt || echo "report-task.txt not found"	  
       - name: Deploy to Kubernetes
         run: |
+          echo "{KUBE_CONFIG_DATA}" | base64 --decode > $HOME/.kube/config
           kubectl apply -f deployment.yaml --validate=false
