@@ -15,6 +15,8 @@ jobs:
       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+	  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+	  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -42,9 +44,21 @@ jobs:
       - name: Print SonarQube Logs
         run: >
           ls -al .scannerwork
-
-          cat .scannerwork/report-task.txt || echo "report-task.txt not found"	  
-      - name: Deploy to Kubernetes
+          cat .scannerwork/report-task.txt || echo "report-task.txt not found"
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+	   - name: Install kubectl
+         uses: azure/setup-kubectl@v2.0
+         with:
+           version: 'v1.24.0' # default is latest stable
+         id: install
+      - name: Update kube config
+        run: aws eks update-kubeconfig --region us-west-2 --name hackathon-k8s
+      - name: Deploy to EKS
         run: |
-          echo "{KUBE_CONFIG_DATA}" | base64 --decode > $HOME/.kube/config
-          kubectl apply -f deployment.yaml --validate=false
+          kubectl apply -f deployment.yaml
+          kubectl apply -f service.yaml
