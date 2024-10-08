@@ -3,20 +3,21 @@ name: Python Application CI/CD
 on:
   push:
     branches:
-      - main
+      - master
   workflow_dispatch:    
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   build-and-scan:
     runs-on: ubuntu-latest
 
     env:
-      DOCKER_IMAGE: sibhanayak/pythonapp
+      DOCKER_IMAGE: karthikamn/python-app
       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+	  KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
     
     steps:
       # Checkout the repository
@@ -46,7 +47,7 @@ jobs:
         with:
           projectBaseDir: .
           args: >
-           -Dsonar.projectKey=hackathon-proj
+           -Dsonar.projectKey=GithubProject
            -Dsonar.host.url=${{ env.SONAR_HOST_URL }}
            -Dsonar.login=${{ env.SONAR_TOKEN }}
            -Dsonar.working.directory=./.scannerwork
@@ -56,3 +57,8 @@ jobs:
         run: |
           ls -al .scannerwork
           cat .scannerwork/report-task.txt || echo "report-task.txt not found"
+		  
+	  - name: Deploy to Kubernetes
+	    run: |
+		   echo "{KUBE_CONFIG_DATA}" | base64 --decode > $HOME/.kube/config
+		   kubectl apply -f argocd-test/deployment.yaml
