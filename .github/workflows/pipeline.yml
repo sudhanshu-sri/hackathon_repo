@@ -1,0 +1,58 @@
+name: Python Application CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:    
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+
+    env:
+      DOCKER_IMAGE: sibhanayak/pythonapp
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Log in to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      # Build the Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t $DOCKER_IMAGE:${{ github.sha }} .
+          docker tag $DOCKER_IMAGE:${{ github.sha }} $DOCKER_IMAGE:latest
+      # Push the Docker image to Docker Hub
+      - name: Push Docker image
+        run: |
+          docker push $DOCKER_IMAGE:${{ github.sha }}
+          docker push $DOCKER_IMAGE:latest
+      # Run SonarQube scan
+      - name: Official SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v3.0.0
+        with:
+          projectBaseDir: .
+          args: >
+           -Dsonar.projectKey=GithubProject
+           -Dsonar.host.url=${{ env.SONAR_HOST_URL }}
+           -Dsonar.login=${{ env.SONAR_TOKEN }}
+           -Dsonar.working.directory=./.scannerwork
+     
+           
+      - name: Print SonarQube Logs
+        run: |
+          ls -al .scannerwork
+          cat .scannerwork/report-task.txt || echo "report-task.txt not found"
