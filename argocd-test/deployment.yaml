@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: pythonapp
-        image: sibhanayak/pythonapp:41
+        image: sibhanayak/pythonapp:latest
         ports:
         - containerPort: 3000
