@@ -56,7 +56,7 @@ pipeline {
            script {
              sh 'docker system prune -f'
              sh 'docker container prune -f'
-             sh 'docker build -t  sibhanayak/pythonapp:$BUILD_NUMBER .'
+             sh 'docker build -t  sudhsriv510/pythonapp:$BUILD_NUMBER .'
             }
         }
       }
@@ -75,13 +75,13 @@ pipeline {
      stage('Docker Push') {
        steps{
          script {
-           sh 'docker push sibhanayak/pythonapp:$BUILD_NUMBER'
+           sh 'docker push sudhsriv510/pythonapp:$BUILD_NUMBER'
          }
       }
     }
     stage("TRIVY Image Scan") {
             steps {
-                sh 'trivy image sibhanayak/pythonapp:$BUILD_NUMBER > trivyimage.txt' 
+                sh 'trivy image sudhsriv510/pythonapp:$BUILD_NUMBER > trivyimage.txt' 
             }
         }
         stage('Checkout2 from Git') {
@@ -92,14 +92,14 @@ pipeline {
         stage('Update Deployment file') {
             environment {
                 GIT_REPO_NAME = "hackathon_repo"
-                GIT_USER_NAME = "sibanando"
+                GIT_USER_NAME = "sudhanshu-sri"
             }
             steps {
 		
                     withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                         sh '''
-                            git config user.email "sibhanayak@hotmail.com"
-                            git config user.name "sibanando"
+                            git config user.email "sudhanshu.1.srivastava@gmai.com"
+                            git config user.name "sudhanshu-sri"
                             BUILD_NUMBER=${BUILD_NUMBER}
                             echo $BUILD_NUMBER
 							sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" deployment.yaml
