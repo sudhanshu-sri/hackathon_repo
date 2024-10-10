@@ -30,8 +30,8 @@ jobs:
           docker tag $DOCKER_IMAGE:${{ github.sha }} $DOCKER_IMAGE:latest
       - name: Push Docker image
         run: |
-          docker push $DOCKER_IMAGE:${{ github.sha }}
-          docker push $DOCKER_IMAGE:latest
+          docker push sudhsriv510/$DOCKER_IMAGE:${{ github.sha }}
+          docker push sudhsriv510/$DOCKER_IMAGE:latest
       - name: Official SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v3.0.0
         with:
