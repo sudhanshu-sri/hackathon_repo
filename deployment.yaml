@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: pythonapp
-        image: public.ecr.aws/a1m4x9c2/my-ecr-public-repo:99e622e88d6c3bf26dbc7026e4cb51199e247369
+        image: public.ecr.aws/a1m4x9c2/my-ecr-public-repo:latest
         ports:
         - containerPort: 3000
 ---
